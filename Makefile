@@ -3,20 +3,22 @@ DESTDIR=/usr/local
 PREFIX=mbedtls_
 OLDPREFIX=polarssl_
 
-.SILENT:
-
-all:	programs tests
+all:	lib programs tests
 
 no_test:	programs
 
-programs:	lib
+programs:
+ifndef SKIP_PROGRAMS
 	$(MAKE) -C programs
+endif
 
 lib:
 	$(MAKE) -C library
 
-tests:	lib
+tests:
+ifndef SKIP_TESTS
 	$(MAKE) -C tests
+endif
 
 install:
 	mkdir -p $(DESTDIR)/include/polarssl
@@ -25,6 +27,7 @@ install:
 	mkdir -p $(DESTDIR)/lib
 	cp library/libpolarssl.* library/libmbedtls.* $(DESTDIR)/lib
 	
+ifndef SKIP_PROGRAMS
 	mkdir -p $(DESTDIR)/bin
 	for p in programs/*/* ; do              \
 	    if [ -x $$p ] && [ ! -d $$p ] ;     \
@@ -35,12 +38,14 @@ install:
 	        ln -sf $$f $(DESTDIR)/bin/$$o ; \
 	    fi                                  \
 	done
+endif
 
 uninstall:
 	rm -rf $(DESTDIR)/include/polarssl
 	rm -f $(DESTDIR)/lib/libpolarssl.*
 	rm -f $(DESTDIR)/lib/libmbedtls.*
 	
+ifndef SKIP_PROGRAMS
 	for p in programs/*/* ; do              \
 	    if [ -x $$p ] && [ ! -d $$p ] ;     \
 	    then                                \
@@ -50,10 +55,13 @@ uninstall:
 	        rm -f $(DESTDIR)/bin/$$o ;      \
 	    fi                                  \
 	done
+endif
 
 clean:
 	$(MAKE) -C library clean
+ifndef SKIP_PROGRAMS
 	$(MAKE) -C programs clean
+endif
 	$(MAKE) -C tests clean
 	find . \( -name \*.gcno -o -name \*.gcda -o -name *.info \) -exec rm {} +
 

@@ -71,8 +71,6 @@ OBJS=	aes.o		aesni.o		arc4.o			\
 		x509write_crt.o			x509write_csr.o	\
 		xtea.o
 
-.SILENT:
-
 ifndef SHARED
 all: static
 else
@@ -84,7 +82,6 @@ static: libpolarssl.a
 shared: libpolarssl.$(DLEXT)
 
 libpolarssl.a: libmbedtls.a
-	echo "  LN    $@ -> $?"
 ifndef WINDOWS
 	ln -sf $? $@
 else
@@ -92,13 +89,10 @@ else
 endif
 
 libmbedtls.a: $(OBJS)
-	echo "  AR    $@"
 	$(AR) rc $@ $(OBJS)
-	echo "  RL    $@"
 	$(AR) s $@
 
 libpolarssl.$(DLEXT): libmbedtls.$(DLEXT)
-	echo "  LN    $@ -> $?"
 ifndef WINDOWS
 	ln -sf $? $@
 else
@@ -113,23 +107,18 @@ endif
 endif
 
 libmbedtls.$(SOEXT): $(OBJS)
-	echo "  LD    $@"
 	$(CC) -shared -Wl,-soname,$@ $(LOCAL_LDFLAGS) $(LDFLAGS) -o $@ $(OBJS)
 
 libmbedtls.so: libmbedtls.$(SOEXT)
-	echo "  LN    $@ -> libmbedtls.$(SOEXT)"
 	ln -sf libmbedtls.$(SOEXT) $@
 
 libmbedtls.dylib: $(OBJS)
-	echo "  LD    $@"
 	$(CC) -dynamiclib $(LOCAL_LDFLAGS) $(LDFLAGS) -o $@ $(OBJS)
 
 libmbedtls.dll: $(OBJS)
-	echo "  LD    $@"
 	$(CC) -shared -Wl,-soname,$@ -Wl,--out-implib,$@.a -o $@ $(OBJS) -lws2_32 -lwinmm -lgdi32 $(LOCAL_LDFLAGS) $(LDFLAGS)
 
 .c.o:
-	echo "  CC    $<"
 	$(CC) $(LOCAL_CFLAGS) $(CFLAGS) -c $<
 
 clean:
